@@ -1,6 +1,7 @@
 ## Trustified
 
-![MicrosoftTeams-image (21)](https://user-images.githubusercontent.com/45895007/216990763-90a45a6f-7ce6-466f-b131-0806dc581f5c.png)
+![Trustified](https://user-images.githubusercontent.com/54347081/221855733-8e440c2a-1892-42e9-97ed-eac0cc753fb7.png)
+
 
 **Trustified is a platform to issue forgery proof digital certificates and badges on Blockchain.**
 
