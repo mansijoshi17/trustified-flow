@@ -10,9 +10,9 @@
 
 **Trustified provides**:
 
-Availability: All the data will be stored on decentralised storage of the Filecoin network.
+Availability: All the data will be stored on decentralised storage of the ipfs.
 
-Forgery Proof: Each certificate and badge will be an NFT on the FVM blockchain.
+Forgery Proof: Each certificate and badge will be an NFT on the Flow blockchain.
 
 Ownership: Ensures true ownership of digital badges and certificates.
 
