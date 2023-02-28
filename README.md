@@ -40,7 +40,6 @@ Ownership: Ensures true ownership of digital badges and certificates.
 
 
 
-
 # Landing Page
 
 <img width="1280" alt="Screenshot 2023-02-06 at 6 59 01 PM" src="https://user-images.githubusercontent.com/45895007/216987184-ff33e255-4081-41d0-ad8a-e92c52eb2c07.png">
