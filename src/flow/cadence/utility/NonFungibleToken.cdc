@@ -35,6 +35,8 @@ pub contract interface NonFungibleToken {
     // The total number of tokens of this type in existence
     pub var totalSupply: UInt64
 
+    pub var tokenIds: UInt64
+
     // Event that emitted when the NFT contract is initialized
     //
     pub event ContractInitialized()

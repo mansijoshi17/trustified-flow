@@ -15,6 +15,8 @@ pub contract ExampleNFT: NonFungibleToken {
     pub let CollectionStoragePath: StoragePath
     pub let CollectionPublicPath: PublicPath
 
+    pub var tokenIds : [UInt64]
+
     pub resource NFT: NonFungibleToken.INFT, MetadataViews.Resolver {
         pub let id: UInt64
 
@@ -114,6 +116,10 @@ pub contract ExampleNFT: NonFungibleToken {
         return <- create Collection()
     }
 
+    pub fun emptyTokenIds(){
+        ExampleNFT.tokenIds = []
+    }
+
     // mintNFT mints a new NFT with a new ID
     // and deposit it in the recipients collection using their collection reference
     pub fun mintNFT(
@@ -129,7 +135,7 @@ pub contract ExampleNFT: NonFungibleToken {
             description: description,
             thumbnail: thumbnail
         )
-
+        ExampleNFT.tokenIds.append(newNFT.id)
         // deposit it in the recipient's account using their reference
         recipient.deposit(token: <-newNFT)
     }
@@ -138,6 +144,7 @@ pub contract ExampleNFT: NonFungibleToken {
     init() {
         // Initialize the total supply
         self.totalSupply = 0
+        self.tokenIds = []
 
         // Set the named paths
         self.CollectionStoragePath = /storage/EmeraldAcademyNonFungibleTokenCollection

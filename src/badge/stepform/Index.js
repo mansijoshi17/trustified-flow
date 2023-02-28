@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { CircularProgress, Dialog, DialogContent, Divider } from '@mui/material';
 import { BadgeContext } from '../../context/BadgeContext';
+import { Web3Context } from "../../context/Web3Context"; 
 import GetTitle from './GetTitle';
 import GetBadgeTemlate from './GetBadgeTemlate';
 import GetCsvFile from './GetCsvFile';
@@ -14,6 +15,8 @@ import GetCsvFile from './GetCsvFile';
 const steps = ['Badge Details', 'Create Your Badge', 'Upload Collectors List'];
 
 export default function BadgeStepperForm() {
+    const web3Context = React.useContext(Web3Context);
+  const { aLoading } = web3Context;
 
     const formdatavalue = React.useContext(BadgeContext);
     const formdata = formdatavalue.labelInfo.formData;
@@ -125,7 +128,7 @@ export default function BadgeStepperForm() {
                                             onClick={formdatavalue.createBadge}
                                             className="thm-btn header__cta-btn"
                                         >
-                                            {formdatavalue.loading ? (
+                                            {aLoading ? (
                                                 <CircularProgress />
                                             ) : (
                                                 <span>Create Badge NFT</span>

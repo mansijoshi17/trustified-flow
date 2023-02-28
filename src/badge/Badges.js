@@ -1,4 +1,3 @@
-import { Divider, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./badge.css";
@@ -13,8 +12,8 @@ const Badges = () => {
   const { getNFTCollections, badgesData, generateClaimersExcellSheet } =
     firebaseContext;
 
-    const web3Context = React.useContext(Web3Context);
-    const { user } = web3Context;
+  const web3Context = React.useContext(Web3Context);
+  const { user } = web3Context;
 
   const [badges, setBadges] = React.useState([]);
 
@@ -34,11 +33,7 @@ const Badges = () => {
     <>
       {badges.map((item, i) => {
         return (
-          <div
-            key={i}
-            className="col-lg-3 col-md-4 col-sm-6 col-12"
-            onClick={() => navigateTo(item.eventId)}
-          >
+          <div key={i} className="col-lg-3 col-md-4 col-sm-6 col-12">
             <Paper className="badgeCard" sx={{ borderRadius: "2em" }}>
               <img
                 className="badgeItem m-auto m-2"

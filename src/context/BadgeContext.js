@@ -1,5 +1,5 @@
 import html2canvas from "html2canvas";
-import React, { useState, createContext, useEffect } from "react";
+import React, { useState, createContext } from "react";
 import { NFTStorage, File } from "nft.storage";
 import jsPDF from "jspdf";
 import { Web3Context } from "./Web3Context";
@@ -10,7 +10,7 @@ export const BadgeContextProvider = (props) => {
   const [csvData, setCsvData] = React.useState([]);
   const [loading, setLoading] = useState(false);
   const web3Context = React.useContext(Web3Context);
-  const { createNFTCollecion } = web3Context;
+  const { createNFTCollecion, setLoadingState } = web3Context;
   const NFT_STORAGE_TOKEN = process.env.REACT_APP_NFT_STORAGE_TOKEN;
   const client = new NFTStorage({ token: NFT_STORAGE_TOKEN });
 
@@ -46,36 +46,34 @@ export const BadgeContextProvider = (props) => {
   };
   const createBadge = async () => {
     try {
-      setLoading(true); 
+      setLoadingState(true);
 
       var results = await Promise.all(
         csvData.map(async (data) => {
+          if (previewUrl) {
+            const input = document.getElementById("badgeId");
+            input.style.width = "200px";
+            input.style.height = "200px";
 
-          if(previewUrl){
-            const input = document.getElementById("badgeId");  
-            input.style.width = '200px';
-            input.style.height = '200px';
-            
-   
-            var pdfBlob = await html2canvas(input).then(async (canvas) => { 
-            const imgData = canvas.toDataURL("image/png"); 
-            const img = new Image(); // create a new image element
-             img.src = imgData; // set the source of the image to the data URL
-             const imageData = await fetch(imgData).then(r => r.blob()); //  
-             
+            var pdfBlob = await html2canvas(input).then(async (canvas) => {
+              const imgData = canvas.toDataURL("image/png");
+              const img = new Image(); // create a new image element
+              img.src = imgData; // set the source of the image to the data URL
+              const imageData = await fetch(imgData).then((r) => r.blob()); //
+
               var pdf;
               if (canvas.width > canvas.height) {
                 pdf = new jsPDF("l", "mm", [canvas.width, canvas.height]);
               } else {
                 pdf = new jsPDF("p", "mm", [canvas.height, canvas.width]);
               }
-  
+
               pdf.addImage(img, "JPEG", 10, 30, canvas.width, canvas.height);
-  
+
               const pdfBlob = pdf.output("blob");
               return { imageData, pdfBlob };
             });
-  
+
             const imageFile = new File(
               [pdfBlob.imageData],
               `${data.name.replace(/ +/g, "")}.png`,
@@ -96,10 +94,10 @@ export const BadgeContextProvider = (props) => {
               image: imageFile,
               pdf: pdfFile,
               claimer: data.name,
-            });  
+            });
             return metadata.ipnft;
           } else {
-            const idd = `badgeToprint${labelInfo.formData.template}`; 
+            const idd = `badgeToprint${labelInfo.formData.template}`;
             const input = document.getElementById(idd);
 
             var pdfBlob = await html2canvas(input).then(async (canvas) => {
@@ -113,7 +111,14 @@ export const BadgeContextProvider = (props) => {
               } else {
                 pdf = new jsPDF("p", "mm", [canvas.height, canvas.width]);
               }
-              pdf.addImage(imgData, "JPEG", 10, 30, canvas.width, canvas.height);
+              pdf.addImage(
+                imgData,
+                "JPEG",
+                10,
+                30,
+                canvas.width,
+                canvas.height
+              );
               const pdfBlob = pdf.output("blob");
               return { imageData, pdfBlob };
             });
@@ -137,9 +142,9 @@ export const BadgeContextProvider = (props) => {
               image: imageFile,
               pdf: pdfFile,
               claimer: data.name,
-            }); 
+            });
             return metadata.ipnft;
-          } 
+          }
         })
       );
       if (results.length > 0) {
@@ -150,11 +155,11 @@ export const BadgeContextProvider = (props) => {
           labelInfo.formData,
           "badge"
         );
+        setLoadingState(false);
       }
-      setLoading(false);
     } catch (error) {
       console.log(error);
-      setLoading(false);
+      setLoadingState(false);
     }
   };
   return (
@@ -174,7 +179,7 @@ export const BadgeContextProvider = (props) => {
         setUsernamePos,
         previewUrl,
         usernamePos,
-        setPreviewUrl
+        setPreviewUrl,
       }}
       {...props}
     >

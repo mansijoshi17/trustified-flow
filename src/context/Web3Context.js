@@ -11,7 +11,6 @@ import "../flow/config";
 export const Web3Context = createContext(undefined);
 
 export const Web3ContextProvider = (props) => {
-  const navigate = useNavigate();
   const [address, setAddress] = useState();
   const [update, setUpdate] = useState(false);
   const [data, setData] = useState();
@@ -19,6 +18,7 @@ export const Web3ContextProvider = (props) => {
   const [claimLoading, setClaimLoading] = useState(false);
   const [claimer, setClaimer] = useState({});
   const [aLoading, setaLoading] = useState(false);
+
 
   const [user, setUser] = useState({ loggedIn: false });
   const [list, setList] = useState([]);
@@ -28,6 +28,11 @@ export const Web3ContextProvider = (props) => {
   const firebasedatacontext = React.useContext(firebaseDataContext);
   const { addCollection, addCollectors, updateCollectors } =
     firebasedatacontext;
+
+  useEffect(() => {
+    getNFTs();
+    getTokenIds();
+  }, [user]);
 
   useEffect(() => {
     getFirestoreData(user?.addr);
@@ -74,7 +79,6 @@ export const Web3ContextProvider = (props) => {
     const name = tname;
     const description = tdescription;
     const thumbnails = uris;
-    console.log(recipient, name, description, thumbnails);
     try {
       const transactionId = await fcl.mutate({
         cadence: `
@@ -91,6 +95,7 @@ export const Web3ContextProvider = (props) => {
           }
         
           execute {
+            ExampleNFT.emptyTokenIds()
             var i = 0
             while i < thumbnails.length {
               ExampleNFT.mintNFT(recipient: self.RecipientCollection, name: name, description: description, thumbnail: thumbnails[i])
@@ -110,17 +115,20 @@ export const Web3ContextProvider = (props) => {
         authorizations: [serverAuthorization],
         limit: 999,
       });
-
-      console.log("Transaction Id", transactionId);
+      return transactionId;
     } catch (e) {
       console.log(e);
     }
   }
 
+  const setLoadingState = (value) => {
+    setaLoading(value);
+  };
+
   const createNFTCollecion = async (data, firebasedata, type) => {
-    console.log(user.addr);
+    setaLoading(true);
     try {
-      await mintNFTs(
+      let transactionId = await mintNFTs(
         user.addr,
         firebasedata.title,
         firebasedata.description,
@@ -132,50 +140,81 @@ export const Web3ContextProvider = (props) => {
       await addCollection(firebasedata);
       var array = [];
 
-      let result = await getNFTs();
-      console.log(result, "res");
-      for (let i = 0; i < result.length; i++) {
-        let obj = {};
-        let claimToken = generateClaimToken(5);
+      fcl.tx(transactionId).subscribe(async (res) => {
+        if (res.status === 4 && res.errorMessage === "") {
+          let result = await getNFTs();
+          let tokenIds = await getTokenIds();
 
-        let d = await axios.get(
-          `https://nftstorage.link/ipfs/${result[i].thumbnail.url}/metadata.json`
-        );
-        array.push([
-          d.data.claimer,
-          `http://localhost:3000/claim/${claimToken}`,
-        ]);
-        obj.title = firebasedata.title;
-        obj.token = claimToken;
-        obj.tokenId = parseInt(result[i].id);
-        obj.claimerAddress = "";
-        obj.ipfsurl = `https://nftstorage.link/ipfs/${result[i].thumbnail.url}/metadata.json`;
+          for (let i = 0; i < tokenIds.length; i++) {
+            let obj = {};
+            let claimToken = generateClaimToken(5);
 
-        obj.name = d.data.claimer;
-        obj.type = type;
-        obj.claimed = "No";
-        obj.transferable = firebasedata.transferable;
+            let r = result.filter((nft) => nft.id == tokenIds[i]);
 
-        await addCollectors(obj);
-      }
-      var csv = "Name,ClaimUrl\n";
-      //merge the data with CSV
-      array.forEach(function (row) {
-        csv += row.join(",");
-        csv += "\n";
+            let d = await axios.get(
+              `https://nftstorage.link/ipfs/${r[0].thumbnail.url}/metadata.json`
+            );
+            array.push([
+              d.data.claimer,
+              `http://localhost:3000/claim/${claimToken}`,
+            ]);
+            obj.title = firebasedata.title;
+            obj.token = claimToken;
+            obj.tokenId = parseInt(tokenIds[i]);
+            obj.claimerAddress = "";
+            obj.ipfsurl = `https://nftstorage.link/ipfs/${r[0].thumbnail.url}/metadata.json`;
+
+            obj.name = d.data.claimer;
+            obj.type = type;
+            obj.claimed = "No";
+            obj.transferable = firebasedata.transferable;
+
+            await addCollectors(obj);
+          }
+          var csv = "Name,ClaimUrl\n";
+          //merge the data with CSV
+          array.forEach(function (row) {
+            csv += row.join(",");
+            csv += "\n";
+          });
+          var hiddenElement = document.createElement("a");
+          hiddenElement.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+          hiddenElement.target = "_blank";
+          //provide the name for the CSV file to be downloaded
+          hiddenElement.download = `${firebasedata.title}.csv`;
+          hiddenElement.click();
+
+          setaLoading(false);
+          toast.success("Successfully Issued NFT collection!!");
+        }
       });
-      var hiddenElement = document.createElement("a");
-      hiddenElement.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
-      hiddenElement.target = "_blank";
-      //provide the name for the CSV file to be downloaded
-      hiddenElement.download = `${firebasedata.title}.csv`;
-      hiddenElement.click();
-      toast.success("Successfully Issued NFT collection!!");
     } catch (err) {
+      setaLoading(false);
       console.log(err);
       toast.error("Something want wrong!!", err);
     }
   };
+
+  async function getTokenIds() {
+    const result = await fcl.query({
+      cadence: `
+      import ExampleNFT from 0xDeployer
+      import MetadataViews from 0xStandard
+
+      pub fun main(): [UInt64] {
+         return ExampleNFT.tokenIds
+      }
+      `,
+      args: (arg, t) => [],
+      proposer: fcl.authz,
+      payer: fcl.authz,
+      authorizations: [fcl.authz],
+      limit: 999,
+    });
+
+    console.log(result, "getTokenIds");
+    return result;
+  }
 
   async function getNFTs() {
     const address = user?.addr;
@@ -306,6 +345,7 @@ export const Web3ContextProvider = (props) => {
         claimLoading,
         setUpdate,
         getNFTs,
+        setLoadingState,
         list,
         csvData,
         address,

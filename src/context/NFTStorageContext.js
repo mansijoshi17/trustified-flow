@@ -1,4 +1,4 @@
-import React, { useState, createContext } from "react";
+import React, { useState, createContext, useEffect } from "react";
 import { NFTStorage, File } from "nft.storage";
 
 import jsPDF from "jspdf";
@@ -9,6 +9,8 @@ import { Web3Context } from "./Web3Context";
 export const NFTStorageContext = createContext(undefined);
 
 export const NFTStorageContextProvider = (props) => {
+  const web3Context = React.useContext(Web3Context);
+  const { createNFTCollecion, setLoadingState } = web3Context;
   const [uploading, setUploading] = useState(false);
   const [csvData, setCsvData] = React.useState([]);
   const [open, setOpen] = React.useState(false);
@@ -24,9 +26,6 @@ export const NFTStorageContextProvider = (props) => {
       transferable: "off",
     },
   });
-
-  const web3Context = React.useContext(Web3Context);
-  const { createNFTCollecion } = web3Context;
 
   const NFT_STORAGE_TOKEN = process.env.REACT_APP_NFT_STORAGE_TOKEN;
   const client = new NFTStorage({ token: NFT_STORAGE_TOKEN });
@@ -47,7 +46,7 @@ export const NFTStorageContextProvider = (props) => {
 
   const createCertificateNFT = async () => {
     try {
-      setUploading(true);
+      setLoadingState(true);
 
       var results = await Promise.all(
         csvData.map(async (data) => {
@@ -105,9 +104,8 @@ export const NFTStorageContextProvider = (props) => {
             });
             return metadata.ipnft;
           } else {
-
             const input = document.getElementById(template);
-    
+
             document.getElementById("certName").innerHTML = data.name;
             document.getElementById("validity").innerHTML =
               labelInfo.formData.expireDate == ""
@@ -174,11 +172,11 @@ export const NFTStorageContextProvider = (props) => {
           labelInfo.formData,
           "certificate"
         );
+        setLoadingState(false);
       }
-      setUploading(false);
     } catch (error) {
       console.log(error);
-      setUploading(false);
+      setLoadingState(false);
     }
   };
 
@@ -207,4 +205,3 @@ export const NFTStorageContextProvider = (props) => {
     </NFTStorageContext.Provider>
   );
 };
- 
