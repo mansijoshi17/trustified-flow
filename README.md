@@ -50,7 +50,7 @@ Ownership: Ensures true ownership of digital badges and certificates.
 
 # Certificates
 
-
+<img width="1025" alt="MicrosoftTeams-image (74)" src="https://user-images.githubusercontent.com/54347081/221834157-706aacd6-e334-4050-86b9-8e5035e87920.png">
 
 # Badges
 
@@ -58,7 +58,9 @@ Ownership: Ensures true ownership of digital badges and certificates.
 
 # Create Certificate Modal
 
+<img width="1429" alt="Screenshot 2023-02-28 at 4 30 09 PM" src="https://user-images.githubusercontent.com/54347081/221834906-2099a8ac-6f4a-469e-8b05-70a8a02e9a38.png">
 
+<img width="1069" alt="Screenshot 2023-02-28 at 4 30 22 PM" src="https://user-images.githubusercontent.com/54347081/221834912-38db4653-20af-492b-ba98-8021e8b3c943.png">
 
 # Create Badge Modal
 
@@ -71,4 +73,6 @@ Ownership: Ensures true ownership of digital badges and certificates.
 <img width="1350" alt="Screenshot 2023-02-28 at 12 09 04 PM" src="https://user-images.githubusercontent.com/54347081/221832701-d761f591-758a-4e10-9f15-6b303feeec26.png">
 
 
+# My Collection
 
+<img width="1269" alt="Screenshot 2023-02-28 at 12 10 55 PM" src="https://user-images.githubusercontent.com/54347081/221834250-47b25592-8073-4853-9e06-f896c16316f3.png">
